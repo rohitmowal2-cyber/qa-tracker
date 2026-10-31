@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA Tracker</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:16px;background:#f4f4f4}
+h2{text-align:center}
+input,select,button{width:100%;padding:10px;margin:4px 0;font-size:16px;box-sizing:border-box}
+button{background:#111;color:#fff;border:0;border-radius:6px}
+.task{background:#fff;padding:10px;margin:8px 0;border-radius:6px}
+.task small{color:#666}
+.del{background:#c0392b;padding:6px;width:auto;font-size:14px;margin-top:6px}
+</style>
+</head>
+<body>
+<h2>QA Checklist Tracker</h2>
+<input id="title" placeholder="Task / bug">
+<select id="team"><option>Restaurant</option><option>Hotel</option><option>Resort</option></select>
+<select id="status"><option>Open</option><option>In Progress</option><option>Done</option></select>
+<button onclick="addTask()">Add Task</button>
+<select id="filter" onchange="render()"><option>All</option><option>Restaurant</option><option>Hotel</option><option>Resort</option></select>
+<div id="list"></div>
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+function save(){ localStorage.setItem("tasks", JSON.stringify(tasks)); }
+function addTask(){
+  const t = document.getElementById("title").value.trim();
+  if(!t) return;
+  tasks.push({title:t, team:document.getElementById("team").value, status:document.getElementById("status").value});
+  document.getElementById("title").value = "";
+  save(); render();
+}
+function del(i){ tasks.splice(i,1); save(); render(); }
+function setStatus(i,v){ tasks[i].status = v; save(); render(); }
+function render(){
+  const f = document.getElementById("filter").value;
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  tasks.forEach((t,i)=>{
+    if(f !== "All" && t.team !== f) return;
+    const d = document.createElement("div");
+    d.className = "task";
+    d.innerHTML = "<b>"+t.title+"</b><br><small>"+t.team+"</small>"
+      + "<select onchange='setStatus("+i+",this.value)'>"
+      + ["Open","In Progress","Done"].map(s=>"<option"+(s===t.status?" selected":"")+">"+s+"</option>").join("")
+      + "</select><button class='del' onclick='del("+i+")'>Delete</button>";
+    list.appendChild(d);
+  });
+}
+render();
+</script>
+</body>
+                                                                                                                             </html>
